@@ -28,9 +28,20 @@ class TransactionModel {
   DateTime updatedAt = DateTime.now();
   DateTime? deletedAt;
 
-  Map<String, dynamic> toApiJson() {
+  Map<String, dynamic> toCreateApiJson() {
     return {
       'clientId': clientId,
+      'title': title,
+      'amount': amount,
+      'type': type,
+      'category': category,
+      'date': _formatApiDate(date),
+      'note': note ?? '',
+    };
+  }
+
+  Map<String, dynamic> toUpdateApiJson() {
+    return {
       'title': title,
       'amount': amount,
       'type': type,

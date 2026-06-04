@@ -23,7 +23,7 @@ class TransactionApi {
     try {
       final response = await _client.dio.post(
         '/transactions',
-        data: transaction.toApiJson(),
+        data: transaction.toCreateApiJson(),
       );
       return TransactionModel.fromApiJson(_extractTransaction(response.data));
     } catch (error) {
@@ -35,7 +35,7 @@ class TransactionApi {
     try {
       final response = await _client.dio.put(
         '/transactions/${transaction.serverId}',
-        data: transaction.toApiJson(),
+        data: transaction.toUpdateApiJson(),
       );
       return TransactionModel.fromApiJson(_extractTransaction(response.data));
     } catch (error) {

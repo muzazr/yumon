@@ -61,6 +61,7 @@ class SyncService {
           }
           final server = await _api.update(transaction);
           transaction
+            ..serverId = server.serverId
             ..syncStatus = SyncStatusValues.synced
             ..updatedAt = server.updatedAt;
           await _local.save(transaction);
