@@ -51,6 +51,29 @@ class TransactionModel {
     };
   }
 
+  Map<String, dynamic> toSyncPushJson(String operation) {
+    final data = <String, dynamic>{
+      'operation': operation,
+      'clientId': clientId,
+      'serverId': serverId,
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+
+    if (operation != 'delete') {
+      data.addAll({
+        'title': title,
+        'amount': amount,
+        'type': type,
+        'category': category,
+        'date': _formatApiDate(date),
+        'note': note,
+        'createdAt': createdAt.toIso8601String(),
+      });
+    }
+
+    return data;
+  }
+
   static TransactionModel fromApiJson(Map<String, dynamic> json) {
     final model = TransactionModel()
       ..clientId = (json['clientId'] ?? '').toString()
