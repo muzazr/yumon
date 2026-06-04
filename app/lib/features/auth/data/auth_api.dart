@@ -21,7 +21,7 @@ class AuthApi {
     }
   }
 
-  Future<AuthResult> register({
+  Future<UserModel> register({
     required String name,
     required String email,
     required String password,
@@ -31,7 +31,9 @@ class AuthApi {
         '/auth/register',
         data: {'name': name, 'email': email, 'password': password},
       );
-      return _parseAuthResponse(response.data);
+
+      final data = _unwrapData(response.data);
+      return UserModel.fromJson(_userJson(data));
     } catch (error) {
       throw _client.readableError(error);
     }
@@ -51,6 +53,11 @@ class AuthApi {
     final data = _unwrapData(body);
     final token = (data['accessToken'] ?? data['token'] ?? '').toString();
     final user = UserModel.fromJson(_userJson(data));
+
+    if (token.isEmpty) {
+      throw Exception('Login response does not include token.');
+    }
+
     return AuthResult(token: token, user: user);
   }
 

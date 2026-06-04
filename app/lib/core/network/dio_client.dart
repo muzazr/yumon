@@ -26,6 +26,10 @@ class DioClient {
         },
       ),
     );
+
+    dio.interceptors.add(
+      LogInterceptor(requestBody: true, responseBody: true, error: true),
+    );
   }
 
   final SecureStorageService _storage;
