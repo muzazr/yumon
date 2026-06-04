@@ -58,12 +58,22 @@ class TransactionLocalDatasource {
   Future<TransactionModel?> findByServerOrClientId({
     String? serverId,
     required String clientId,
-  }) {
-    var query = _isar.transactionModels.filter().clientIdEqualTo(clientId);
+  }) async {
     if (serverId != null && serverId.isNotEmpty) {
-      query = query.or().serverIdEqualTo(serverId);
+      final byServerId = await _isar.transactionModels
+          .filter()
+          .serverIdEqualTo(serverId)
+          .findFirst();
+
+      if (byServerId != null) {
+        return byServerId;
+      }
     }
-    return query.findFirst();
+
+    return _isar.transactionModels
+        .filter()
+        .clientIdEqualTo(clientId)
+        .findFirst();
   }
 
   Future<Id> save(TransactionModel transaction) {

@@ -8,10 +8,7 @@ class TransactionApi {
 
   Future<List<TransactionModel>> getTransactions() async {
     try {
-      final response = await _client.dio.get(
-        '/transactions',
-        queryParameters: {'includeDeleted': true},
-      );
+      final response = await _client.dio.get('/transactions');
       final list = _extractList(response.data);
       return list
           .whereType<Map<String, dynamic>>()
