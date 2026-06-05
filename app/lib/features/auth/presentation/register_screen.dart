@@ -121,7 +121,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           _email.text.trim(),
                           _password.text,
                         );
-                    if (success && context.mounted) context.go('/home');
+                    if (success && context.mounted) context.go('/login');
                   },
                 ),
                 const SizedBox(height: 14),

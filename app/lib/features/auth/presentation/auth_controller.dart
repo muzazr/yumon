@@ -68,10 +68,9 @@ class AuthController extends StateNotifier<AuthState> {
   Future<bool> register(String name, String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final user = await _ref
-          .read(authRepositoryProvider)
-          .register(name, email, password);
-      state = AuthState(user: user, checkedSession: true);
+      await _ref.read(authRepositoryProvider).register(name, email, password);
+
+      state = const AuthState(checkedSession: true);
       return true;
     } catch (error) {
       state = state.copyWith(isLoading: false, error: error.toString());

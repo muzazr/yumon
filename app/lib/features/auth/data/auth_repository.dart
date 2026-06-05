@@ -7,7 +7,7 @@ class AuthRepository {
 
   static const _useFakeAuth = bool.fromEnvironment(
     'YUMON_FAKE_AUTH',
-    defaultValue: true,
+    defaultValue: false,
   );
   static const _fakeUser = UserModel(
     id: 'fake-user',
@@ -28,15 +28,15 @@ class AuthRepository {
     final token = await _storage.readToken();
     if (token == null || token.isEmpty) return null;
 
-    final storedName = await _storage.readUserName();
-    final storedEmail = await _storage.readUserEmail();
-    if (storedName != null && storedEmail != null) {
-      return UserModel(id: '', name: storedName, email: storedEmail);
-    }
+    try {
+      final user = await _api.me();
 
-    final user = await _api.me();
-    await _storage.saveUser(name: user.name, email: user.email);
-    return user;
+      await _storage.saveUser(name: user.name, email: user.email);
+      return user;
+    } catch (_) {
+      await _storage.clearSession();
+      return null;
+    }
   }
 
   Future<UserModel> login(String email, String password) async {
@@ -66,13 +66,12 @@ class AuthRepository {
       return user;
     }
 
-    final result = await _api.register(
+    final user = await _api.register(
       name: name,
       email: email,
       password: password,
     );
-    await _saveSession(result);
-    return result.user;
+    return user;
   }
 
   Future<void> logout() => _storage.clearSession();

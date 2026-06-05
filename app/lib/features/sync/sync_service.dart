@@ -39,39 +39,37 @@ class SyncService {
 
   Future<void> pushPendingTransactions() async {
     final pending = await _local.getPendingTransactions();
-    for (final transaction in pending) {
-      try {
-        if (transaction.syncStatus == SyncStatusValues.pendingCreate ||
-            transaction.syncStatus == SyncStatusValues.failed) {
-          if (transaction.isDeleted) {
-            await _local.hardDelete(transaction.id);
-            continue;
+    if (pending.isEmpty) return;
+
+    try {
+      final results = await _api.pushSync(pending);
+      for (final transaction in pending) {
+        SyncPushResult? result;
+        for (final item in results) {
+          if (item.clientId == transaction.clientId) {
+            result = item;
+            break;
           }
-          final server = await _api.create(transaction);
-          transaction
-            ..serverId = server.serverId
-            ..syncStatus = SyncStatusValues.synced
-            ..updatedAt = server.updatedAt;
-          await _local.save(transaction);
-        } else if (transaction.syncStatus == SyncStatusValues.pendingUpdate) {
-          if (transaction.serverId == null || transaction.serverId!.isEmpty) {
-            transaction.syncStatus = SyncStatusValues.pendingCreate;
-            await _local.save(transaction);
-            continue;
-          }
-          final server = await _api.update(transaction);
-          transaction
-            ..syncStatus = SyncStatusValues.synced
-            ..updatedAt = server.updatedAt;
-          await _local.save(transaction);
-        } else if (transaction.syncStatus == SyncStatusValues.pendingDelete) {
-          final serverId = transaction.serverId;
-          if (serverId != null && serverId.isNotEmpty) {
-            await _api.delete(serverId);
-          }
-          await _local.hardDelete(transaction.id);
         }
-      } catch (_) {
+
+        if (result == null || !result.isSynced) {
+          transaction.syncStatus = SyncStatusValues.failed;
+          await _local.save(transaction);
+          continue;
+        }
+
+        if (result.operation == 'delete') {
+          await _local.hardDelete(transaction.id);
+          continue;
+        }
+
+        transaction
+          ..serverId = result.serverId ?? transaction.serverId
+          ..syncStatus = SyncStatusValues.synced;
+        await _local.save(transaction);
+      }
+    } catch (_) {
+      for (final transaction in pending) {
         transaction.syncStatus = SyncStatusValues.failed;
         await _local.save(transaction);
       }
