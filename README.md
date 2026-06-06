@@ -8,6 +8,16 @@ Project ini dibuat untuk tugas **MobTeam #2 — Backend & Local Database** denga
 
 ---
 
+## Wireframe
+
+<p align="center">
+  <img src="docs/images/login_screen.png" width="200" />
+  <img src="docs/images/home_screen.png" width="200" />
+  <img src="docs/images/transaction_screen.png" width="200" />
+</p>
+
+---
+
 ## Links
 
 | Kebutuhan | Link |
